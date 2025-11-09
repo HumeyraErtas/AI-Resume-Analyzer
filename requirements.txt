@@ -1,0 +1,6 @@
+Flask
+transformers
+torch
+PyPDF2
+gunicorn
+pytest

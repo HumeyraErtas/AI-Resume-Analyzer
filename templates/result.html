@@ -1,0 +1,113 @@
+<!-- templates/result.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analiz Sonuçları - AI Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>Analiz Sonuçları</h1>
+
+    <div class="score-card">
+        <h2>Genel Skor: {{ overall_score }} / 100</h2>
+        <p>Bu skor, teknik, AI, veri bilimi ve soft skill sinyallerinin birleşimidir.</p>
+
+        {% if target_role %}
+            <p><strong>Hedef Pozisyon:</strong>
+                {% if target_role == 'backend' %}Backend Developer{% endif %}
+                {% if target_role == 'data_scientist' %}Data Scientist{% endif %}
+                {% if target_role == 'ai_engineer' %}AI Engineer{% endif %}
+                {% if target_role == 'frontend' %}Frontend Developer{% endif %}
+                {% if target_role == 'mobile' %}Mobile Developer{% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <h2>Kategori Bazlı Skorlar</h2>
+    <div style="height:300px;">
+        <canvas id="scoreChart"></canvas>
+    </div>
+
+    <script>
+        // Jinja çıktısını string olarak alıp JSON.parse ile çözüyoruz
+        const scoresData = JSON.parse('{{ scores | default({}) | tojson | safe }}');
+
+        const labels = Object.keys(scoresData);
+        const data = Object.values(scoresData);
+
+        const canvas = document.getElementById('scoreChart');
+        if (canvas && labels.length && data.length) {
+            const ctx = canvas.getContext('2d');
+
+            // Önceki chart varsa (sayfa yenilenmeden tekrar render edilirse) temizle
+            if (window._scoreChart && typeof window._scoreChart.destroy === 'function') {
+                try { window._scoreChart.destroy(); } catch (e) {}
+            }
+
+            window._scoreChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Kategori Skorları',
+                        data: data
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+
+    <h2>Öneriler</h2>
+    <ul>
+        {% for s in suggestions %}
+            <li>{{ s }}</li>
+        {% endfor %}
+    </ul>
+
+    {% if target_role %}
+        <h2>Bu Rol İçin Önerilen Ek Anahtar Kelimeler</h2>
+        {% if recommended_skills %}
+            <p>
+                {% for kw in recommended_skills %}
+                    <span class="keyword-tag keyword-missing">{{ kw }}</span>
+                {% endfor %}
+            </p>
+        {% else %}
+            <p>Seçtiğin rol için temel anahtar kelimelerin çoğu CV'nde görünüyor. 🚀</p>
+        {% endif %}
+    {% endif %}
+
+    <h2>CV'nde Bulunan Anahtar Kelimeler</h2>
+    {% if present_keywords %}
+        <p>
+            {% for kw in present_keywords %}
+                <span class="keyword-tag">{{ kw }}</span>
+            {% endfor %}
+        </p>
+    {% else %}
+        <p>Belirgin anahtar kelime bulunamadı. CV'ni daha teknik terimlerle zenginleştirebilirsin.</p>
+    {% endif %}
+
+    <h2>CV Metni</h2>
+    <pre class="resume-text">{{ resume_text }}</pre>
+
+    <p><a href="{{ url_for('index') }}" class="back-link">Yeni bir CV analiz et</a></p>
+</div>
+</body>
+</html>

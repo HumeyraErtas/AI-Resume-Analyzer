@@ -1,0 +1,43 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>AI Resume Analyzer</h1>
+    <p>PDF veya metin olarak CV'ni yükle, AI senin için analiz etsin.</p>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+        <label for="resume_file">CV Yükle (PDF veya TXT):</label>
+        <input type="file" id="resume_file" name="resume_file" accept=".pdf,.txt">
+
+        <p style="text-align:center;">veya</p>
+
+        <label for="resume_text">CV Metnini Yapıştır:</label>
+        <textarea id="resume_text" name="resume_text" rows="10"
+                  placeholder="CV içeriğini buraya yapıştırabilirsin..."></textarea>
+
+        <!-- 🎯 Hedef pozisyon seçimi -->
+        <label for="target_role">Hedef Pozisyon (opsiyonel):</label>
+        <select id="target_role" name="target_role">
+            <option value="">Seçme (genel analiz)</option>
+            <option value="backend">Backend Developer</option>
+            <option value="data_scientist">Data Scientist</option>
+            <option value="ai_engineer">AI Engineer</option>
+            <option value="frontend">Frontend Developer</option>
+            <option value="mobile">Mobile Developer</option>
+        </select>
+
+        <button type="submit">Analiz Et</button>
+    </form>
+</div>
+</body>
+</html>
